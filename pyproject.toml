@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "cloudio"
+version = "0.1.0"
+description = ""
+authors = ["Tomoaki Nakamura <tomoaki.nakamura@elyza.ai>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+boto3 = "^1.12.46"
+requests = "^2.23.0"
+tqdm = "^4.45.0"
+
+[tool.poetry.dev-dependencies]
+ipykernel = "^5.2.1"
+pytest = "^5.4.1"
+pytest-cov = "^2.8.1"
+pandas = "^1.0.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
