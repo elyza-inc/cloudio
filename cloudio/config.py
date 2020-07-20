@@ -1,4 +1,5 @@
 import os
+from contextlib import contextmanager
 from typing import Any, Dict
 
 __CONFIG = {
@@ -21,3 +22,11 @@ def get_config(key: str) -> Any:
 
 def get_all_config() -> Dict[str, Any]:
     return __CONFIG.copy()
+
+
+@contextmanager
+def cloudio_config(**kwargs: Any):
+    current_config = get_all_config()
+    set_config(**kwargs)
+    yield
+    set_config(**current_config)

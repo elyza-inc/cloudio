@@ -1,9 +1,5 @@
 import pandas as pd
-
-from cloudio import copen
-
-# import cloudio
-# cloudio.set_config(s3_profile="elyza")
+from cloudio import cloudio_config, copen
 
 
 def test_open_read_s3():
@@ -26,5 +22,7 @@ def test_open_read_fileobj():
 
 
 def test_open_write_s3():
-    with copen("s3://elyza-datasets/JapaneseSQuAD/hoge.txt", "w") as f:
+    with cloudio_config(s3_profile="elyza"), copen(
+        "s3://elyza-datasets/JapaneseSQuAD/hoge.txt", "w"
+    ) as f:
         f.write("hogefuga")
