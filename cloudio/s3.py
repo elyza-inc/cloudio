@@ -7,7 +7,6 @@ from urllib.parse import urlparse
 import boto3
 import botocore
 from botocore.exceptions import ClientError, ProfileNotFound
-
 from cloudio.config import get_config
 
 logger = logging.getLogger(__name__)
