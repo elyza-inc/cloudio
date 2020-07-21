@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from logging import getLogger
+from typing import IO, Generator
 
 from cloudio.cached_path import cached_path
 from cloudio.upload import upload_later
@@ -8,7 +9,9 @@ logger = getLogger(__name__)
 
 
 @contextmanager
-def copen(file, mode: str = "r", encoding: str = "utf-8", **kwargs):
+def copen(
+    file, mode: str = "r", encoding: str = "utf-8", **kwargs
+) -> Generator[IO, None, None]:
     f = None
     if "r" in mode:
         try:
