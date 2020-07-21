@@ -1,4 +1,3 @@
-from cloudio import cloudio_config
 from cloudio.upload import upload, upload_later
 
 

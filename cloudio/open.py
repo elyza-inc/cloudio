@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from logging import getLogger
-from typing import IO, Generator
+from pathlib import Path
+from typing import IO, Generator, Union
 
 from cloudio.cached_path import cached_path
 from cloudio.upload import upload_later
@@ -10,7 +11,7 @@ logger = getLogger(__name__)
 
 @contextmanager
 def copen(
-    file, mode: str = "r", encoding: str = "utf-8", **kwargs
+    file: Union[str, Path], mode: str = "r", encoding: str = "utf-8", **kwargs
 ) -> Generator[IO, None, None]:
     f = None
     if "r" in mode:
@@ -26,7 +27,7 @@ def copen(
                 f.close()
             logger.debug(f"Close {file}")
 
-    elif "w" in mode or "x" in mode or "a" in mode:
+    elif "w" in mode:
         with upload_later(file) as local_tmp_file:
             try:
                 f = open(local_tmp_file, mode=mode, encoding=encoding, **kwargs)

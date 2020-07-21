@@ -1,10 +1,18 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
-from cloudio import cloudio_config, copen
+from cloudio import copen
 
 
-def test_open_read_s3():
+def test_open_read_s3_00():
     with copen("s3://elyza-sandbox/cloudio/README.md") as f:
+        text = f.read()
+    assert text[:9] == "# cloudio"
+
+
+def test_open_read_s3_01():
+    with copen(Path("s3://elyza-sandbox/cloudio/README.md")) as f:
         text = f.read()
     assert text[:9] == "# cloudio"
 
