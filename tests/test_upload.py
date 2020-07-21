@@ -1,8 +1,14 @@
+from pathlib import Path
+
 from cloudio.upload import upload, upload_later
 
 
-def test_upload():
+def test_upload_00():
     upload("s3://elyza-sandbox/cloudio/README.md", "README.md")
+
+
+def test_upload_01():
+    upload(Path("s3://elyza-sandbox/cloudio/README.md"), "README.md")
 
 
 def test_upload_later():

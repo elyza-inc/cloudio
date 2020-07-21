@@ -14,6 +14,9 @@ logger = getLogger(__name__)
 
 
 def upload(url: str, path: Union[str, Path]) -> None:
+    url = to_str(url)
+    path = to_str(path)
+
     parsed = urlparse(url)
     if parsed.scheme == "s3":
         if Path(path).is_dir():
@@ -26,11 +29,12 @@ def upload(url: str, path: Union[str, Path]) -> None:
 
 @contextmanager
 def upload_later(cloud_or_local_path: Union[str, Path]) -> Generator[str, None, None]:
-    parsed = urlparse(to_str(cloud_or_local_path))
+    cloud_or_local_path = to_str(cloud_or_local_path)
+    parsed = urlparse(cloud_or_local_path)
 
     # If path is local path, then yield it
     if Path(cloud_or_local_path).parent.exists():
-        yield to_str(cloud_or_local_path)
+        yield cloud_or_local_path
 
     # Upload to some cloud storage
     elif parsed.scheme in ("s3", "gs"):

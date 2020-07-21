@@ -78,8 +78,6 @@ def cached_path(url_or_filename: Union[str, Path], cache_dir: str = None) -> str
     url_or_filename = to_str(url_or_filename)
     if cache_dir is None:
         cache_dir = get_config("cache_dir")
-    if isinstance(url_or_filename, Path):
-        url_or_filename = to_str(url_or_filename)
 
     url_or_filename = os.path.expanduser(url_or_filename)
     parsed = urlparse(url_or_filename)
@@ -107,7 +105,8 @@ def is_url_or_existing_file(url_or_filename: Union[str, Path, None]) -> bool:
     """
     if url_or_filename is None:
         return False
-    url_or_filename = os.path.expanduser(to_str(url_or_filename))
+    url_or_filename = to_str(url_or_filename)
+    url_or_filename = os.path.expanduser(url_or_filename)
     parsed = urlparse(url_or_filename)
     return parsed.scheme in ("http", "https", "s3") or os.path.exists(url_or_filename)
 
