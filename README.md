@@ -15,17 +15,31 @@ PythonでWebやAWS S3上のファイルをローカルにあるかのように�
 
 
 
-## Usage
+## Install
+pyproject.tomlに下記を追加し、ELYZA PyPI serverからインストールできるようにする
+
+詳細は[notion](https://www.notion.so/elyza/Elyza-Pypi-Server-db883ed39e3642e98aa4f36f30361546)参照
+```
+[[tool.poetry.source]]
+name = "elyza"
+url = "http://3.19.79.8:8081/simple/"
+secondary = true
+```
+
 
 ```shell
-$ pip install git+https://github.com/elyza-inc/cloudio.git
+$ poetry add cloudio
+```
 
+```shell
 # S3を使いたいがAWS cliの設定が出来ていない場合は以下のように設定
 $ pip install awscli
 $ awscli configure
 # 管理者に発行してもらったアクセストークンを登録する
 ```
 
+
+##
 
 
 ```Python
