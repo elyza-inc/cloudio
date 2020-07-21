@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from cloudio import get_config
 from cloudio.s3 import s3_upload_file
+from cloudio.utils import to_str
 
 logger = getLogger(__name__)
 
@@ -25,11 +26,11 @@ def upload(url: str, path: Union[str, Path]) -> None:
 
 @contextmanager
 def upload_later(cloud_or_local_path: Union[str, Path]) -> Generator[str, None, None]:
-    parsed = urlparse(cloud_or_local_path)
+    parsed = urlparse(to_str(cloud_or_local_path))
 
     # If path is local path, then yield it
     if Path(cloud_or_local_path).parent.exists():
-        yield str(cloud_or_local_path)
+        yield to_str(cloud_or_local_path)
 
     # Upload to some cloud storage
     elif parsed.scheme in ("s3", "gs"):
