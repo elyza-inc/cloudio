@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 from cloudio import cloudio_config, copen
 
 
@@ -26,3 +27,11 @@ def test_open_write_s3():
         "s3://elyza-datasets/JapaneseSQuAD/hoge.txt", "w"
     ) as f:
         f.write("hogefuga")
+
+
+def test_open_raise_not_found():
+    with pytest.raises(FileNotFoundError):
+        with cloudio_config(s3_profile="elyza"), copen(
+            "s3://elyza-datasets/fuga.txt", "r"
+        ) as f:
+            text = f.read()
