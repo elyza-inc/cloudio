@@ -4,9 +4,9 @@ from cloudio import cloudio_config, copen
 
 
 def test_open_read_s3():
-    with copen("s3://elyza-datasets/JapaneseSQuAD/source/README.md") as f:
+    with copen("s3://elyza-sandbox/cloudio/README.md") as f:
         text = f.read()
-    assert text[:16] == "# Japanese SQuAD"
+    assert text[:9] == "# cloudio"
 
 
 def test_open_read_local():
@@ -16,22 +16,18 @@ def test_open_read_local():
 
 
 def test_open_read_fileobj():
-    url = "s3://elyza-datasets/JapaneseSQuAD/source/wiki_top_long_paragraphs.json"
+    url = "s3://elyza-sandbox/cloudio/fuga.csv"
     with copen(url) as f:
-        df = pd.read_json(f, orient="records", lines=True)
-    df.head()
+        df = pd.read_csv(f)
+    assert df["a"][0] == 1
 
 
 def test_open_write_s3():
-    with cloudio_config(s3_profile="elyza"), copen(
-        "s3://elyza-datasets/JapaneseSQuAD/hoge.txt", "w"
-    ) as f:
-        f.write("hogefuga")
+    with copen("s3://elyza-sandbox/cloudio/bar.txt", "w") as f:
+        f.write("bar")
 
 
 def test_open_raise_not_found():
     with pytest.raises(FileNotFoundError):
-        with cloudio_config(s3_profile="elyza"), copen(
-            "s3://elyza-datasets/fuga.txt", "r"
-        ) as f:
+        with copen("s3://elyza-datasets/not_existing.txt", "r") as f:
             text = f.read()
