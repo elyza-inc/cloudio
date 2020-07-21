@@ -13,6 +13,7 @@ logger = getLogger(__name__)
 
 @contextmanager
 def copen(file, mode: str = "r", encoding: str = "utf-8", **kwargs):
+    f = None
     if "r" in mode:
         try:
             logger.debug(f"Open {file} with kwargs: {kwargs}")
@@ -22,7 +23,8 @@ def copen(file, mode: str = "r", encoding: str = "utf-8", **kwargs):
         except Exception:
             raise
         finally:
-            f.close()
+            if f is not None:
+                f.close()
             logger.debug(f"Close {file}")
 
     elif "w" in mode or "x" in mode or "a" in mode:
@@ -35,7 +37,8 @@ def copen(file, mode: str = "r", encoding: str = "utf-8", **kwargs):
             except Exception:
                 raise
             else:
-                f.close()
+                if f is not None:
+                    f.close()
             finally:
                 return
 
