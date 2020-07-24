@@ -18,7 +18,10 @@ def copen(
         try:
             logger.debug(f"Open {file} with kwargs: {kwargs}")
             cache_path = cached_path(file)
-            f = open(cache_path, mode=mode, encoding=encoding, **kwargs)
+            if "b" in mode:
+                f = open(cache_path, mode=mode, **kwargs)
+            else:
+                f = open(cache_path, mode=mode, encoding=encoding, **kwargs)
             yield f
         except Exception:
             raise
@@ -30,7 +33,10 @@ def copen(
     elif "w" in mode:
         with upload_later(file) as local_tmp_file:
             try:
-                f = open(local_tmp_file, mode=mode, encoding=encoding, **kwargs)
+                if "b" in mode:
+                    f = open(local_tmp_file, mode=mode, **kwargs)
+                else:
+                    f = open(local_tmp_file, mode=mode, encoding=encoding, **kwargs)
                 yield f
             except Exception:
                 raise
