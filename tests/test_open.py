@@ -23,6 +23,13 @@ def test_open_read_local():
     assert text[:13] == "[tool.poetry]"
 
 
+def test_open_read_binary():
+    with copen("pyproject.toml", "rb") as f:
+        text = f.read()
+    assert isinstance(text, bytes)
+    assert text.decode()[:13] == "[tool.poetry]"
+
+
 def test_open_read_fileobj():
     url = "s3://elyza-sandbox/cloudio/fuga.csv"
     with copen(url) as f:
@@ -33,6 +40,11 @@ def test_open_read_fileobj():
 def test_open_write_s3():
     with copen("s3://elyza-sandbox/cloudio/bar.txt", "w") as f:
         f.write("bar")
+
+
+def test_open_write_s3_binary():
+    with copen("s3://elyza-sandbox/cloudio/boo.bin", "wb") as f:
+        f.write(b"bar")
 
 
 def test_open_raise_not_found():
