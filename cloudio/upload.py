@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 from cloudio import get_config
-from cloudio.s3 import s3_upload_file
+from cloudio.s3 import s3_upload_file, s3_upload_folder
 from cloudio.utils import to_str
 
 logger = getLogger(__name__)
@@ -64,3 +64,19 @@ def upload_later(cloud_or_local_path: Union[str, Path]) -> Generator[str, None, 
 
     else:
         raise ValueError(f"Given url_or_path {cloud_or_local_path} is invalid.")
+
+
+def upload_folder(url: str, path: Union[str, Path]) -> None:
+    """ローカルのpath以下の全オブジェクトをurl以下にアップロードする
+
+    path/A, path/B/C のようにファイルが存在するとき
+    url/A, url/B/Cのようにファイルがアップロードされる
+    """
+    if not Path(path).is_dir():
+        raise ValueError(f"Given path {path} is not directory")
+
+    parsed = urlparse(url)
+    if parsed.scheme == "s3":
+        s3_upload_folder(url=url, path=path)
+    else:
+        raise NotImplementedError("Uploading except S3 is not implemented.")

@@ -1,13 +1,15 @@
 import logging
+import os
 from functools import wraps
 from pathlib import Path
 from typing import IO, Callable, Optional, Tuple, Union
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import boto3
 import botocore
 from botocore.exceptions import ClientError, ProfileNotFound
 from cloudio.config import get_config
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -102,3 +104,13 @@ def s3_upload_fileobj(url: str, fileobj: IO) -> None:
     s3_resource = get_s3_resource()
     bucket_name, s3_path = split_s3_path(url)
     s3_resource.Bucket(bucket_name).upload_fileobj(Fileobj=fileobj, Key=s3_path)
+
+
+@s3_request
+def s3_upload_folder(url: str, path: Union[str, Path]) -> None:
+    s3_resource = get_s3_resource()
+    bucket_name, s3_path = split_s3_path(url)
+    files = sorted([p for p in Path(path).rglob("*") if p.is_file()])
+    for file in tqdm(files):
+        tgt_url = os.path.join(s3_path, str(file.relative_to(path)))
+        s3_resource.Bucket(bucket_name).upload_file(Filename=str(file), Key=tgt_url)
