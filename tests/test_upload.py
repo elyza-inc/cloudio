@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from cloudio.upload import upload, upload_folder, upload_later
-from s3path import S3Path
 
 
 def test_upload_00():

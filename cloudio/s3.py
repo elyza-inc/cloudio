@@ -114,3 +114,10 @@ def s3_upload_folder(url: str, path: Union[str, Path]) -> None:
     for file in tqdm(files):
         tgt_url = os.path.join(s3_path, str(file.relative_to(path)))
         s3_resource.Bucket(bucket_name).upload_file(Filename=str(file), Key=tgt_url)
+
+
+@s3_request
+def s3_remove(url: str) -> None:
+    s3_resource = get_s3_resource()
+    bucket_name, s3_path = split_s3_path(url)
+    s3_resource.Bucket(bucket_name).objects.filter(Prefix=s3_path).delete()
