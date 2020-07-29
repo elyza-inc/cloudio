@@ -48,11 +48,17 @@ def s3_request(func: Callable):
 
 def get_s3_resource():
     s3_profile = get_config("s3_profile")
+    if s3_profile is None:
+        return boto3.resource("s3")
     try:
         session = boto3.session.Session(profile_name=s3_profile)
     except ProfileNotFound:
-        logger.warning(f"指定されたaws profile {s3_profile}が見つかりません。IAMロールを参照して続行します")
-        return boto3.resource("s3")
+        logger.error(
+            "awscliの設定が正しくなされていません。管理者にアクセストークンを発行してもらったのち、"
+            f"aws configure --profile {s3_profile} でprofileを登録してください\n"
+            "https://qiita.com/itooww/items/bdc2dc15213da43a10a7"
+        )
+        raise ProfileNotFound(profile=s3_profile)
     if session.get_credentials() is None:
         # Use unsigned requests.
         s3_resource = session.resource(
