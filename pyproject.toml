@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cloudio"
-version = "0.5.1-alpha.1"
+version = "0.5.2"
 description = ""
 authors = ["Tomoaki Nakamura <tomoaki.nakamura@elyza.ai>"]
 
