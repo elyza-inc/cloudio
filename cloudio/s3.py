@@ -7,7 +7,9 @@ from urllib.parse import urljoin, urlparse
 
 import boto3
 import botocore
+import toml
 from botocore.exceptions import ClientError, ProfileNotFound
+
 from cloudio.config import get_config
 from tqdm import tqdm
 
@@ -49,7 +51,14 @@ def s3_request(func: Callable):
 def get_s3_resource():
     s3_profile = get_config("s3_profile")
     if s3_profile is None:
-        return boto3.resource("s3")
+        credential_source = get_credential_source()
+        if credential_source is None:
+            return boto3.resource(
+                "s3", config=botocore.client.Config(signature_version=botocore.UNSIGNED)
+            )
+        else:
+            return boto3.resource("s3")
+
     try:
         session = boto3.session.Session(profile_name=s3_profile)
     except ProfileNotFound:
@@ -123,3 +132,22 @@ def s3_remove(url: str) -> None:
     s3_resource = get_s3_resource()
     bucket_name, s3_path = split_s3_path(url)
     s3_resource.Bucket(bucket_name).objects.filter(Prefix=s3_path).delete()
+
+
+def get_credential_source():
+    """AWSのcredential_sourceを返す。設定されていない場合はNoneとなる"""
+    aws_config_file = os.environ.get("AWS_CONFIG_FILE")
+    if aws_config_file is None:
+        return None
+
+    with open(aws_config_file, "r") as f:
+        try:
+            aws_config = toml.load(f)
+        except toml.decoder.TomlDecodeError:
+            return None
+    try:
+        credential_source = aws_config["default"]["credential_source"]
+    except KeyError or TypeError:
+        return None
+    else:
+        return credential_source
