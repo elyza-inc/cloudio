@@ -52,8 +52,6 @@ def s3_request(func: Callable):
 def get_s3_resource():
     s3_profile = get_config("s3_profile")
     if s3_profile is None:
-        # credential_source = get_credential_source()
-        # if credential_source is None:
         if not has_default_credentials():
             return boto3.resource(
                 "s3", config=botocore.client.Config(signature_version=botocore.UNSIGNED)
