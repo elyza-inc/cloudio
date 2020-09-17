@@ -1,13 +1,14 @@
 import logging
 import os
+from configparser import ConfigParser
 from functools import wraps
 from pathlib import Path
 from typing import IO, Callable, Optional, Tuple, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
+import boto
 import boto3
 import botocore
-import toml
 from botocore.exceptions import ClientError, ProfileNotFound
 
 from cloudio.config import get_config
@@ -51,8 +52,7 @@ def s3_request(func: Callable):
 def get_s3_resource():
     s3_profile = get_config("s3_profile")
     if s3_profile is None:
-        credential_source = get_credential_source()
-        if credential_source is None:
+        if not has_default_credentials():
             return boto3.resource(
                 "s3", config=botocore.client.Config(signature_version=botocore.UNSIGNED)
             )
@@ -134,20 +134,76 @@ def s3_remove(url: str) -> None:
     s3_resource.Bucket(bucket_name).objects.filter(Prefix=s3_path).delete()
 
 
-def get_credential_source():
+def get_credential_source() -> Optional[str]:
     """AWSのcredential_sourceを返す。設定されていない場合はNoneとなる"""
-    aws_config_file = os.environ.get("AWS_CONFIG_FILE")
-    if aws_config_file is None:
+    aws_config_file = os.environ.get(
+        "AWS_CONFIG_FILE", str(Path.home() / ".aws/config")
+    )
+
+    if not Path(aws_config_file).exists():
         return None
 
-    with open(aws_config_file, "r") as f:
-        try:
-            aws_config = toml.load(f)
-        except toml.decoder.TomlDecodeError:
-            return None
+    aws_config = ConfigParser()
+    aws_config.read(aws_config_file)
+
     try:
         credential_source = aws_config["default"]["credential_source"]
-    except KeyError or TypeError:
+    except KeyError:
         return None
     else:
         return credential_source
+
+
+def has_default_credentials() -> bool:
+    """環境変数やコンフィグファイルなど、プログラムへの入力以外の方法で設定された認証情報があるかどうかを返す
+
+    !!! note
+    https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#configuring-credentials
+    ```
+    boto3の資格情報検索メカニズムは、以下のリストに沿って検索し、資格情報を見つけたらそこで停止することです。Boto3が資格情報を検索する順序は:
+
+    boto.client() メソッドにパラメーターで渡された資格情報
+    Session オブジェクトの生成時にパラメーターで渡された資格情報
+    環境変数
+    共有された認証情報ファイル（~/.aws/credentials）
+    AWS設定ファイル（~/.aws/config）
+    ロールの引き受けの提供
+    Boto2設定ファイル（/etc/boto.cfg and ~/.boto）
+    IAMロールを構成されたAmazon EC2インスタンス上ではそのインスタンスメタデータサービス
+    ```
+    """
+    # 1. 環境変数
+    if os.environ.get("AWS_ACCESS_KEY_ID") is not None:
+        return True
+
+    # 2. 共有された認証情報ファイル（~/.aws/credentials）
+    aws_credentials_file = os.environ.get(
+        "AWS_SHARED_CREDENTIALS_FILE", str(Path.home() / ".aws/credentials")
+    )
+    if Path(aws_credentials_file).exists():
+        aws_credentials = ConfigParser()
+        aws_credentials.read(aws_credentials_file)
+        try:
+            _ = aws_credentials["default"]["aws_access_key_id"]
+        except KeyError:
+            pass
+        else:
+            return True
+
+    # 3. AWS設定ファイル（~/.aws/config）
+    # 以下の理由により、これのチェックは行わない
+    # 通常は、AWS設定ファイル内で管理しているプロファイル情報はリージョン（region）とデフォルトの出力形式（output）で、認証情報は含まれていません
+
+    # TODO: ロールの引き受けの提供
+
+    # 4. Boto2設定ファイル（/etc/boto.cfg and ~/.boto）
+    aws_access_key_id = boto.config.get_value("Credentials", "aws_access_key_id")
+    if aws_access_key_id is not None:
+        return True
+
+    # 5. IAMロールを構成されたAmazon EC2インスタンス上ではそのインスタンスメタデータサービス
+    credential_source = get_credential_source()
+    if credential_source is not None:
+        return True
+
+    return False
