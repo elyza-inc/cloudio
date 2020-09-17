@@ -4,12 +4,11 @@ from configparser import ConfigParser
 from functools import wraps
 from pathlib import Path
 from typing import IO, Callable, Optional, Tuple, Union
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 
 import boto
 import boto3
 import botocore
-import toml
 from botocore.exceptions import ClientError, ProfileNotFound
 
 from cloudio.config import get_config
@@ -181,7 +180,7 @@ def has_default_credentials() -> bool:
 
     # 2. 共有された認証情報ファイル（~/.aws/credentials）
     aws_credentials_file = os.environ.get(
-        "AWS_SHARED_CREDENTIALS_FILE", str(Path.home() / ".aws/credentials）")
+        "AWS_SHARED_CREDENTIALS_FILE", str(Path.home() / ".aws/credentials")
     )
     if Path(aws_credentials_file).exists():
         aws_credentials = ConfigParser()
