@@ -35,3 +35,8 @@ def format_path_with_drive(path: Path) -> str:
 
     formatted = fix_drive_str_in_path(formatted)
     return formatted
+
+
+def override_pathlib_str_for_drive() -> None:
+    """Replaces `Path.__str__` with `format_path_with_drive`"""
+    Path.__str__ = format_path_with_drive
