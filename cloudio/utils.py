@@ -3,6 +3,11 @@ from pathlib import Path
 from typing import Union
 
 
+def fix_drive_str_in_path(path: str) -> str:
+    fixed = re.sub(r':/(?!/)', '://', path)
+    return fixed
+
+
 def to_str(path_or_url: Union[str, Path]) -> str:
     """ローカルへのパスまたはURLをstr型に変換する
 
@@ -13,9 +18,7 @@ def to_str(path_or_url: Union[str, Path]) -> str:
         return path_or_url
     elif isinstance(path_or_url, Path):
         path_or_url_str = str(path_or_url)
-        path_or_url_str = re.sub(r"^s3:/", "s3://", path_or_url_str)
-        path_or_url_str = re.sub(r"^http:/", "http://", path_or_url_str)
-        path_or_url_str = re.sub(r"^https:/", "https://", path_or_url_str)
+        path_or_url_str = fix_drive_str_in_path(path_or_url_str)
         return path_or_url_str
     else:
         raise TypeError
