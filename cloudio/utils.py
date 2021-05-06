@@ -8,7 +8,7 @@ def fix_drive_str_in_path(path: str) -> str:
     return fixed
 
 
-def to_str(path_or_url: Union[str, Path]) -> str:
+def format_path_or_url(path_or_url: Union[str, Path]) -> str:
     """ローカルへのパスまたはURLをstr型に変換する
 
     単純にs3のパスをPath('s3://hoge')などとしてしまうと、//が/に変換され Path('s3:/hoge/fuga')
