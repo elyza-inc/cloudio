@@ -22,3 +22,16 @@ def format_path_or_url(path_or_url: Union[str, Path]) -> str:
         return path_or_url_str
     else:
         raise TypeError
+
+
+def format_path_with_drive(path: Path) -> str:
+    """Formats `pathlib.Path` object."""
+
+    # below is the copy-and-paste of `pathlib.Path.__str__`
+    try:
+        formatted = path._str
+    except AttributeError:
+        formatted = path._format_parsed_parts(path._drv, path._root, path._parts) or '.'
+
+    formatted = fix_drive_str_in_path(formatted)
+    return formatted
