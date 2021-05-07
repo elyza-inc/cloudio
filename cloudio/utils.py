@@ -48,7 +48,8 @@ def override_pathlib_open_with_copen() -> None:
     `smart_open.smart_open_lib.patch_pathlib`.
     """
     def _open(path_or_uri: Union[str, Path], mode: str = 'r', **kwargs):
-        f = cloudio.copen(str(path_or_uri), mode=mode, **kwargs)
+        path_or_uri = format_path_or_url(path_or_uri)
+        f = cloudio.copen(path_or_uri, mode=mode, **kwargs)
         return f
 
     Path.open = _open
