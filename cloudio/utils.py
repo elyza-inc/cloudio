@@ -40,3 +40,16 @@ def format_path_with_drive(path: Path) -> str:
 def override_pathlib_str_for_drive() -> None:
     """Replaces `Path.__str__` with `format_path_with_drive`"""
     Path.__str__ = format_path_with_drive
+
+
+def override_pathlib_open_with_copen() -> None:
+    """
+    Replaces `pathlib.Path.open` with `cloudio.copen`. This function imitates
+    `smart_open.smart_open_lib.patch_pathlib`.
+    """
+    def _open(path_or_uri: Union[str, Path], mode: str = 'r', **kwargs):
+        path_or_uri = format_path_or_url(path_or_uri)
+        f = cloudio.copen(path_or_uri, mode=mode, **kwargs)
+        return f
+
+    Path.open = _open
