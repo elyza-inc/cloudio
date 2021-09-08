@@ -19,7 +19,7 @@ import requests
 from cloudio.config import get_config
 from cloudio.s3 import s3_download_fileobj, s3_etag
 from cloudio.tqdm import Tqdm
-from cloudio.utils import to_str
+from cloudio.utils import format_path_or_url
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -75,7 +75,7 @@ def cached_path(url_or_filename: Union[str, Path], cache_dir: str = None) -> str
     return the path to the cached file. If it's already a local path,
     make sure the file exists and then return the path.
     """
-    url_or_filename = to_str(url_or_filename)
+    url_or_filename = format_path_or_url(url_or_filename)
     if cache_dir is None:
         cache_dir = get_config("cache_dir")
 
@@ -105,7 +105,7 @@ def is_url_or_existing_file(url_or_filename: Union[str, Path, None]) -> bool:
     """
     if url_or_filename is None:
         return False
-    url_or_filename = to_str(url_or_filename)
+    url_or_filename = format_path_or_url(url_or_filename)
     url_or_filename = os.path.expanduser(url_or_filename)
     parsed = urlparse(url_or_filename)
     return parsed.scheme in ("http", "https", "s3") or os.path.exists(url_or_filename)
